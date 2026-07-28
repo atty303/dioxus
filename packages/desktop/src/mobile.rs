@@ -67,10 +67,19 @@ pub extern "C" fn start_app() {
         }
 
         stop_unwind(|| unsafe {
-            let mut main_fn_ptr = libc::dlsym(libc::RTLD_DEFAULT, b"main\0".as_ptr() as _);
+            let handle = libc::dlopen(
+                b"libmain.so\0".as_ptr().cast(),
+                libc::RTLD_NOW,
+            );
+
+            if handle.is_null() {
+                panic!("Failed to open libmain.so");
+            }
+
+            let mut main_fn_ptr = libc::dlsym(handle, b"main\0".as_ptr() as _);
 
             if main_fn_ptr.is_null() {
-                main_fn_ptr = libc::dlsym(libc::RTLD_DEFAULT, b"_main\0".as_ptr() as _);
+                main_fn_ptr = libc::dlsym(handle, b"_main\0".as_ptr() as _);
             }
 
             if main_fn_ptr.is_null() {
