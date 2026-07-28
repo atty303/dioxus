@@ -67,13 +67,21 @@ pub extern "C" fn start_app() {
         }
 
         stop_unwind(|| unsafe {
-            let handle = libc::dlopen(
-                b"libmain.so\0".as_ptr().cast(),
-                libc::RTLD_NOW,
-            );
+            let mut info = std::mem::MaybeUninit::<libc::Dl_info>::uninit();
 
+            if libc::dladdr(root as *const () as *const libc::c_void, info.as_mut_ptr()) == 0 {
+                panic!("Failed to resolve the current shared library");
+            }
+
+            let info = info.assume_init();
+            if info.dli_fname.is_null() {
+                panic!("Current shared library has no filename");
+            }            
+
+            let handle = libc::dlopen(info.dli_fname, libc::RTLD_NOW);
             if handle.is_null() {
-                panic!("Failed to open libmain.so");
+                let error = std::ffi::CStr::from_ptr(libc::dlerror()).to_string_lossy();
+                panic!("Failed to open current shared library: {error}");
             }
 
             let mut main_fn_ptr = libc::dlsym(handle, b"main\0".as_ptr() as _);
