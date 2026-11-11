@@ -619,6 +619,9 @@ pub struct AndroidConfig {
     #[serde(default)]
     pub gradle_dependencies: Vec<String>,
 
+    #[serde(default)]
+    pub gradle_repositories: Vec<String>,
+
     /// Gradle plugins to apply.
     #[serde(default)]
     pub gradle_plugins: Vec<String>,
