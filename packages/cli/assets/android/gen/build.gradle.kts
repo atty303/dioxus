@@ -13,9 +13,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        {{#each gradle_repositories}}
-        maven { url = uri("{{this}}") }
-        {{/each}}
     }
 }
 

@@ -139,7 +139,6 @@ impl BuildRequest {
             foreground_service_type: String,
             /// Extra Gradle dependencies from [android] config
             gradle_dependencies: Vec<String>,
-            gradle_repositories: Vec<String>,
             /// Extra Gradle plugins from [android] config
             gradle_plugins: Vec<String>,
             /// Application-level manifest attributes from [android.application]
@@ -192,7 +191,6 @@ impl BuildRequest {
             app_link_hosts: mapper.android_app_link_hosts,
             foreground_service_type,
             gradle_dependencies: self.config.android.gradle_dependencies.clone(),
-            gradle_repositories: self.config.android.gradle_repositories.clone(),
             gradle_plugins: self.config.android.gradle_plugins.clone(),
             uses_cleartext_traffic: self.config.android.application.uses_cleartext_traffic,
             app_theme: self.config.android.application.theme.clone(),
@@ -205,10 +203,7 @@ impl BuildRequest {
         // Top-level gradle config
         write(
             root.join("build.gradle.kts"),
-            hbs.render_template(
-                include_str!("../../assets/android/gen/build.gradle.kts"),
-                &hbs_data,
-            )?,
+            include_bytes!("../../assets/android/gen/build.gradle.kts"),
         )?;
         write(
             root.join("gradle.properties"),
